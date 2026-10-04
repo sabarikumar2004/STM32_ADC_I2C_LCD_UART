@@ -1,5 +1,7 @@
 # STM32F103 Bare-Metal ADC, I2C LCD & UART
 
+![STM32 ADC I2C LCD UART Project](Image/project_thumbnail.png)
+
 ## Project Overview
 
 This project demonstrates **ADC, I2C, LCD, and UART communication** using the STM32F103C8T6 Blue Pill.
@@ -140,16 +142,18 @@ This project helps in understanding STM32 peripheral registers, bit manipulation
 
 ## Project Structure
 
-```text
-STM32_ADC_UART_PC
+STM32_ADC_I2C_LCD_UART
 │
-├── Inc
+├── Image
+│   └── project_thumbnail.png
+│
 ├── Src
-│   └── main.c
 ├── Startup
-│   └── startup_stm32f103c8tx.s
-└── README.md
-```
+├── README.md
+├── .project
+├── .cproject
+├── .gitignore
+└── STM32F103C8TX_FLASH.ld
 
 ## Result
 
