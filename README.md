@@ -2,6 +2,10 @@
 
 ![STM32 ADC I2C LCD UART Project](Image/project_thumbnail.png.png)
 
+## Hardware Setup
+
+![STM32 Hardware Setup](Image/hardware_setup.png)
+
 ## Project Overview
 
 This project demonstrates **ADC, I2C, LCD, and UART communication** using the STM32F103C8T6 Blue Pill.
