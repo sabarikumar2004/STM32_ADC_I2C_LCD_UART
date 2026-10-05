@@ -146,26 +146,29 @@ This project helps in understanding STM32 peripheral registers, bit manipulation
 
 ## Project Structure
 
-STM32_ADC_I2C_LCD_UART/
+```text
+📁 STM32_ADC_I2C_LCD_UART
 │
-├── Image/
+├── 📁 Image
 │   ├── project_thumbnail.png.png
 │   └── hardware_setup.png
 │
-├── Inc/
-├── Src/
+├── 📁 Inc
+│
+├── 📁 Src
 │   ├── main.c
 │   ├── syscalls.c
 │   └── sysmem.c
 │
-├── Startup/
+├── 📁 Startup
 │   └── startup_stm32f103c8tx.s
 │
-├── .cproject
-├── .project
-├── .gitignore
-├── README.md
-└── STM32F103C8TX_FLASH.ld
+├── 📄 .cproject
+├── 📄 .gitignore
+├── 📄 .project
+├── 📄 README.md
+└── 📄 STM32F103C8TX_FLASH.ld
+```
 
 ## Result
 
