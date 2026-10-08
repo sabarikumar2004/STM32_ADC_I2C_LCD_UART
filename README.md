@@ -1,4 +1,4 @@
-# STM32F103 Bare-Metal ADC, I2C LCD & UART
+# STM32F103 Bare-Metal ADC, I2C LCD, UART & Timer Interrupt
 
 ![STM32 ADC I2C LCD UART Project](Image/project_thumbnail.png.png)
 
@@ -8,11 +8,13 @@
 
 ## Project Overview
 
-This project demonstrates **ADC, I2C, LCD, and UART communication** using the STM32F103C8T6 Blue Pill.
+This project demonstrates **ADC, I2C, LCD, UART communication, and Timer Interrupt** using the STM32F103C8T6 Blue Pill.
 
 The project is developed using **bare-metal C programming** by directly accessing STM32 peripheral registers without using HAL libraries.
 
 A potentiometer is connected to the ADC input. The ADC value is converted into voltage and displayed on a 16x2 LCD through I2C. The same voltage value is also sent through UART to a PC terminal.
+
+A **TIM2 timer interrupt** is also configured to generate a periodic interrupt. The interrupt handler toggles an LED connected to **PA1**, creating a continuous LED blink without using delay for the LED timing.
 
 ## Features
 
@@ -24,6 +26,8 @@ A potentiometer is connected to the ADC input. The ADC value is converted into v
 * UART serial communication
 * Voltage display in volts
 * UART output using PuTTY
+* TIM2 timer interrupt
+* LED blink using timer interrupt
 
 ## Hardware Used
 
@@ -33,6 +37,7 @@ A potentiometer is connected to the ADC input. The ADC value is converted into v
 * PCF8574 I2C LCD module
 * USB-to-TTL converter
 * ST-Link V2
+* LED
 * Soldering
 
 ## Pin Connections
@@ -64,6 +69,17 @@ PA0 is connected to **ADC1 Channel 0**.
 | GND        | GND   |
 
 USART1 TX is available on **PA9**.
+
+### Timer Interrupt LED
+
+| LED     | STM32                |
+| ------- | -------------------- |
+| Anode   | PA1                  |
+| Cathode | GND through resistor |
+
+PA1 is configured as a GPIO output.
+
+TIM2 generates an interrupt periodically, and the interrupt handler toggles the LED.
 
 ## Peripherals Used
 
@@ -99,13 +115,27 @@ Voltage = ADC_Value × 3.3 / 4095
 * Stop Bit: 1
 * Parity: None
 
+### Timer Interrupt
+
+* Timer: TIM2
+* Timer Clock: 8 MHz
+* Prescaler: 7999
+* Auto-Reload Value: 999
+* Interrupt: Update Interrupt
+* LED Pin: PA1
+* NVIC Interrupt: TIM2
+
+TIM2 generates an update interrupt approximately every **1 second**.
+
+Inside `TIM2_IRQHandler()`, the PA1 output is toggled whenever the timer interrupt occurs.
+
 ## LCD Output
 
 The LCD displays:
 
 ```text
 ADC_POT_VALUE:
-1.65
+1.65 V
 ```
 
 The voltage changes according to the potentiometer position.
@@ -117,10 +147,28 @@ The same voltage is transmitted through USART1 and can be viewed using PuTTY.
 Example:
 
 ```text
-ADC_POT_VALUE: 1.65
-ADC_POT_VALUE: 2.31
-ADC_POT_VALUE: 3.02
+ADC_POT_VALUE: 1.65 V
+ADC_POT_VALUE: 2.31 V
+ADC_POT_VALUE: 3.02 V
 ```
+
+## Timer Interrupt LED Output
+
+The LED connected to PA1 blinks continuously.
+
+The LED is controlled inside the TIM2 interrupt handler:
+
+```text
+TIM2 interrupt
+      ↓
+TIM2_IRQHandler()
+      ↓
+Toggle PA1
+      ↓
+LED changes state
+```
+
+This demonstrates the use of **hardware timer interrupts and NVIC interrupt handling** in a bare-metal STM32 application.
 
 ## Software Tools
 
@@ -141,8 +189,10 @@ The following peripherals are configured through STM32 registers:
 * ADC
 * I2C
 * USART
+* TIM2
+* NVIC
 
-This project helps in understanding STM32 peripheral registers, bit manipulation, GPIO configuration, ADC conversion, I2C communication, and UART transmission.
+This project helps in understanding STM32 peripheral registers, bit manipulation, GPIO configuration, ADC conversion, I2C communication, UART transmission, timer configuration, and interrupt handling.
 
 ## Project Structure
 
@@ -172,10 +222,13 @@ This project helps in understanding STM32 peripheral registers, bit manipulation
 
 ## Result
 
-The potentiometer voltage is successfully measured using the STM32 ADC and displayed on:
+The project successfully demonstrates:
 
-1. 16x2 I2C LCD
-2. PC terminal through UART
+1. Potentiometer voltage measurement using STM32 ADC
+2. Voltage display on a 16x2 I2C LCD
+3. UART transmission of voltage data to a PC
+4. TIM2 timer interrupt generation
+5. LED blinking using the TIM2 interrupt
 
 ## Author
 
