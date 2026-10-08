@@ -17,4 +17,5 @@ Release/
 
 .DS_Store
 Thumbs.db
-desktop.ini
+desktop.iniSTM32_ADC_I2C_LCD_UART.cfg
+STM32_ADC_I2C_LCD_UART.launch
