@@ -5,12 +5,24 @@
 #define RCC_APB1ENR     (*(volatile uint32_t *)(RCC_BASE + 0x1C))
 #define RCC_CFGR        (*(volatile uint32_t *)(RCC_BASE + 0x04))
 
+
 #define GPIOA_BASE      0x40010800UL
 #define GPIOA_CRL       (*(volatile uint32_t *)(GPIOA_BASE + 0x00))
 #define GPIOA_CRH       (*(volatile uint32_t *)(GPIOA_BASE + 0x04))
+#define GPIOA_ODR       (*(volatile uint32_t *)(GPIOA_BASE + 0x0C))
 
 #define GPIOB_BASE      0x40010C00UL
 #define GPIOB_CRL       (*(volatile uint32_t *)(GPIOB_BASE + 0x00))
+
+#define TIM2_BASE      0x40000000UL
+#define TIM2_CR1       (*(volatile uint32_t *)(TIM2_BASE + 0x00))
+#define TIM2_DIER      (*(volatile uint32_t *)(TIM2_BASE + 0x0C))
+#define TIM2_SR        (*(volatile uint32_t *)(TIM2_BASE + 0x10))
+#define TIM2_PSC       (*(volatile uint32_t *)(TIM2_BASE + 0x28))
+#define TIM2_ARR       (*(volatile uint32_t *)(TIM2_BASE + 0x2C))
+
+#define NVIC_BASE 0xE000E100UL
+#define NVIC_ISER0 (*(volatile uint32_t *)(NVIC_BASE + 0x00))
 
 #define I2C1_BASE       0x40005400UL
 #define I2C1_CR1        (*(volatile uint32_t *)(I2C1_BASE + 0x00))
@@ -40,6 +52,7 @@
 #define ADC1EN          (1 << 9)
 #define UART1EN         (1 << 14)
 #define I2C1EN          (1 << 21)
+#define TIM2EN          (1 << 0)
 
 #define LCD_I2C_ADDR    0x27
 #define BACKLIGHT_BIT   0x08
@@ -51,6 +64,36 @@ void delay(uint32_t ms)
 	volatile uint32_t i, j;
 	for(i = 0; i < ms; i++)
 		for(j = 0; j < 1000; j++);
+}
+
+void TIM2_IRQHandler(void)
+{
+	if(TIM2_SR & (1 << 0))
+	{
+		TIM2_SR &= ~(1 << 0);
+		GPIOA_ODR ^= (1 << 1);
+	}
+}
+
+void TIM2_init(void)
+{
+	RCC_APB2ENR |= IOPAEN;
+
+	GPIOA_CRL &= ~(0xF << 4);
+	GPIOA_CRL |=  (0x3 << 4);
+
+	GPIOA_ODR &= ~(1 << 1);
+
+	RCC_APB1ENR |= TIM2EN;
+
+	TIM2_PSC = 7999;
+	TIM2_ARR = 999;
+
+	TIM2_DIER |= (1 << 0);
+
+    NVIC_ISER0 |= (1 << 28);
+
+    TIM2_CR1 |= (1 << 0);
 }
 
 void I2C1_init(void)
@@ -220,7 +263,7 @@ void UART_float(float value)
 	uint16_t integer, decimal;
 
 	integer = (uint16_t)value;
-	// Fixed: Evaluates parameters fully before truncation to handle fractional part accurately
+
 	decimal = (uint16_t)((value - (float)integer) * 100.0f);
 
 	UART_char((char)(integer + '0'));
@@ -235,6 +278,7 @@ int main(void)
 
 	for(volatile uint32_t wait = 0; wait < 100; wait++);
 
+	TIM2_init();
 	I2C1_init();
 	ADC1_init();
 	UART_init();
@@ -246,13 +290,13 @@ int main(void)
 
 		// Screen Output
 		LCD_command(0x80);
-		LCD_string("ADC_POT_VALUE: ");
+		LCD_string("ADC_VALUE: ");
 		LCD_command(0xC0);
 		LCD_float(voltage);
 		LCD_string(" V  "); // Clears any artifacts
 
 		// Serial Output
-		UART_string("ADC_POT_VALUE: ");
+		UART_string("ADC_VALUE: ");
 		UART_float(voltage);
 		UART_string(" V\r\n");
 
